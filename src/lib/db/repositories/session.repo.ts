@@ -33,3 +33,27 @@ export function refreshSession(
     })
     .immediate();
 }
+
+/** Replace the current session without leaving both credentials live. */
+export function replaceSession(
+  previous: string | null,
+  hash: string,
+  userId: string,
+  now: Date,
+  expiry: Date,
+): void {
+  const db = getDb();
+  const at = now.toISOString();
+  db.transaction(() => {
+    if (previous)
+      db.prepare("DELETE FROM sessions WHERE id_hash = ?").run(previous);
+    db.prepare(
+      "INSERT INTO sessions(id_hash,user_id,created_at,last_seen_at,expires_at) VALUES (?,?,?,?,?)",
+    ).run(hash, userId, at, at, expiry.toISOString());
+  }).immediate();
+}
+
+/** Revoke one presented session. */
+export function deleteSession(hash: string): void {
+  getDb().prepare("DELETE FROM sessions WHERE id_hash = ?").run(hash);
+}

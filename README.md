@@ -9,3 +9,9 @@ Run `npm run verify` for lint, strict type checking, unit tests, production comp
 Build the container with `docker build -t lablink .`. It runs as a non-root user and listens on port 8080. Set a random `SESSION_SECRET` of at least 32 characters in production.
 
 Architecture, phase acceptance criteria and checkpoint history are under `doc/`.
+
+## Demo sign-in
+
+Set `DEMO_MODE=true` in your development environment and open `/login`. Choose Student, Faculty, In-charge, or Admin under **Try a demo account**. The demo buttons start sessions for seeded `demo-student@example.edu`, `demo-faculty@example.edu`, `demo-incharge@example.edu`, and `demo-admin@example.edu`. The demo accounts use the demo buttons for access. Demo Admin has read-only account access.
+
+The app seeds an empty SQLite database on first use. Run `npm run seed` to initialize it explicitly. The seed includes a three-request FPGA conflict and preserves existing data on repeat runs.

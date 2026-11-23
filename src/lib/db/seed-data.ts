@@ -1,4 +1,5 @@
 import type Database from "better-sqlite3";
+import { DEMO_ROLES, demoUserId } from "../auth/demo-identity";
 
 const DEPARTMENTS = [
   ["CSE", "Computer Science"],
@@ -102,12 +103,6 @@ function fixtureId(group: number, index: number): string {
   return `00000000-0000-4000-8000-${String(group * 1000 + index).padStart(12, "0")}`;
 }
 
-const ROLES = ["student", "faculty", "incharge", "admin"] as const;
-/** Stable fixture identity, shared with demo authorization. */
-export function demoUserId(role: (typeof ROLES)[number]): string {
-  return fixtureId(2, ROLES.indexOf(role));
-}
-
 function seedPeople(db: Database.Database, at: string): void {
   const department = db.prepare("INSERT INTO departments VALUES (?,?,?)");
   DEPARTMENTS.forEach(([code, name], index) =>
@@ -116,7 +111,7 @@ function seedPeople(db: Database.Database, at: string): void {
   const user =
     db.prepare(`INSERT INTO users(id,name,email,password_hash,role,department_id,faculty_guide_id,status,created_at,updated_at)
     VALUES (?,?,?,'!',?,?,?,'active',?,?)`);
-  ROLES.forEach((role) =>
+  DEMO_ROLES.forEach((role) =>
     user.run(
       demoUserId(role),
       `Demo ${role}`,

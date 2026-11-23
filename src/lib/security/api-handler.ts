@@ -1,5 +1,6 @@
 import { isIP } from "node:net";
 import { z } from "zod";
+import { requireRole } from "@/lib/auth/guards";
 import { loadSession } from "@/lib/auth/load-session";
 import { getConfig } from "@/lib/config";
 import { AppError } from "@/lib/errors";
@@ -12,6 +13,7 @@ import { requestId } from "./request-id";
 type Shape = z.ZodRawShape;
 type Values<S extends Shape> = z.output<z.ZodObject<S>>;
 interface Options<P extends Shape, Q extends Shape, B extends Shape, T> {
+  enabled?: () => boolean;
   auth: "public" | "user" | { roles: readonly Role[] };
   bucket: Bucket;
   params?: P;
@@ -23,6 +25,9 @@ interface Options<P extends Shape, Q extends Shape, B extends Shape, T> {
     body: Values<B>;
     actor: Actor | null;
     requestId: string;
+    request: Request;
+    responseHeaders: Headers;
+    now: Date;
   }): T | Promise<T>;
 }
 const limiter = new RateLimiter();
@@ -32,9 +37,7 @@ function authorize(
   actor: Actor | null,
 ): void {
   if (auth === "public") return;
-  if (!actor) throw new AppError("UNAUTHENTICATED", "Sign in to continue.");
-  if (typeof auth === "object" && !auth.roles.includes(actor.role))
-    throw new AppError("FORBIDDEN", "Permission denied.");
+  requireRole(actor, typeof auth === "object" ? auth.roles : undefined);
 }
 function parse<S extends Shape>(
   shape: S | undefined,
@@ -114,6 +117,8 @@ export function apiHandler<
   return async (request, context) => {
     const id = requestId(request.headers);
     try {
+      if (options.enabled && !options.enabled())
+        throw new AppError("NOT_FOUND", "Resource unavailable.");
       const now = deps.now();
       // Cloud Run appends the peer address; only trust its suffix on that platform.
       const ip = process.env.K_SERVICE
@@ -123,17 +128,25 @@ export function apiHandler<
       checkOrigin(request, getConfig().APP_URL);
       const actor = deps.loadSession(request, now);
       authorize(options.auth, actor);
-      const params = parse(options.params, (await context.params) ?? {}, "params");
+      const params = parse(
+        options.params,
+        (await context.params) ?? {},
+        "params",
+      );
       const query = parse(options.query, queryValues(request), "query");
       const body = parse(options.body, await readBody(request), "body");
+      const responseHeaders = new Headers({ "x-request-id": id });
       const data = await options.handler({
+        request,
+        responseHeaders,
+        now,
         params,
         query,
         body,
         actor,
         requestId: id,
       });
-      return Response.json({ data }, { headers: { "x-request-id": id } });
+      return Response.json({ data }, { headers: responseHeaders });
     } catch (cause) {
       return failure(cause, id);
     }
