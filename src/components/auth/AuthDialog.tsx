@@ -40,6 +40,7 @@ export function AuthDialog<Draft>({
   return (
     <dialog
       ref={dialog}
+      data-testid="auth-dialog"
       aria-labelledby={title}
       onCancel={(event) => {
         event.preventDefault();

@@ -14,7 +14,9 @@ test("F-72 guest can open the home page and health probe", async ({
       .first()
       .evaluate((script) => (script as HTMLScriptElement).nonce),
   ).toBe(nonce);
-  await expect(page.getByRole("heading", { name: "LabLink" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Find the lab equipment you need" }),
+  ).toBeVisible();
   const health = await request.get("/api/health");
   expect(health.headers()["content-security-policy"]).toContain(
     "frame-ancestors 'none'",

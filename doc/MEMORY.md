@@ -9,20 +9,20 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-11-23 |
-| Project stage | Phase 3 verified |
-| Active phase | **Phase 4 — Public catalogue & keyword search** (next session) |
-| Last checkpoint | Phase 3 — Auth, sessions, RBAC, demo |
-| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 26 tests, production build, size gate. |
-| Last `npm run test:e2e` | 6 passed. Guest health and CSP, student signup, and all four demo roles with sign-out and cookie checks. |
+| Project stage | Phases 4–6 verified |
+| Active phase | **Phase 7 — Conflict detection & allocation engine** (next session) |
+| Last checkpoint | Phase 4–6 — Catalogue, bookings, projects, approvals and notifications |
+| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 37 tests, production build, size gate. |
+| Last `npm run test:e2e` | 9 passed. Includes guest catalogue and axe, resumed booking, booking edits and cancellation, project approval and notification read. |
 | Live URL | Pending deployment |
-| Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.5 MB |
+| Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.7 MB |
 | Attempts used (submission) | 0 / 2 |
 | Blockers | Docker CLI unavailable for local image build. |
 
 **Next 3 actions:**
-1. Implement public equipment repository reads, service filtering, sorting and pagination.
-2. Add catalogue and equipment detail pages with shareable filters and accessible loading, empty and error states.
-3. Verify guest catalogue browsing and combined filters.
+1. Build the deterministic allocation engine with deadline, priority, usage and wait-time factors.
+2. Build engine input from conflict groups, projects, booking history and policy.
+3. Persist allocation decisions and verify ranking, alternatives and explanations against seeded fixtures.
 
 ---
 
@@ -42,9 +42,9 @@
 | 1 | Data layer & security primitives | ✅ | 2026-11-23 | Schema v1, booking primitives, security pipeline and CSP verified. |
 | 2 | Seed data | ✅ | 2026-11-23 | 36 equipment items, 23 users and a three-request conflict. |
 | 3 | Auth, sessions, RBAC, demo | ✅ | 2026-11-23 | Signup, login, sessions, role guards and demo flows verified. |
-| 4 | Public catalogue & keyword search | ⬜ | | |
-| 5 | Availability & direct booking | ⬜ | | |
-| 6 | Projects, approvals, notifications | ⬜ | | |
+| 4 | Public catalogue & keyword search | ✅ | 2026-11-23 | Public inventory, combined URL filters and axe checks. |
+| 5 | Availability & direct booking | ✅ | 2026-11-23 | IST slots, guest draft resume, transactional booking and owner-only edits. |
+| 6 | Projects, approvals, notifications | ✅ | 2026-11-23 | Project team and equipment, guide decisions, conflict groups and unread notifications. |
 | 7 | Conflict detection & allocation engine | ⬜ | | |
 | 8 | Conflict resolution UI (HITL) | ⬜ | | |
 | 9 | AI layer + fallbacks | ⬜ | | |
@@ -64,6 +64,9 @@
 | 2026-11-23 | Phase 1 · SEC-03/06/07/09/10/11/13/16 | Migrated fresh and v0 databases, added repository mappings, IST/overlap helpers, session lookup, API pipeline and nonce middleware | verify passed (17 tests, 6 files), Playwright 1 passed, source 432676 bytes before memory update, production audit 0 vulnerabilities. |
 | 2026-11-23 | Phase 2 · F-71 | Atomic first-use seed and SVG illustrations | verify passed (18 tests, 7 files), size 445180 bytes before memory update. |
 | 2026-11-23 | Phase 3 · SEC-01/02/04/05/11/17/19 | Auth routes, cookie sessions, signup/login UI, resumable dialog, demo roles and audit events | verify passed (26 tests, 9 files), Chromium 6 passed, source 481356 bytes before memory update. |
+| 2026-11-23 | Phase 4 · F-10/11/13 | Public catalogue, keyword scoring, URL filters, ordering, pagination and bounded 30-second LRU | verify passed. Chromium guest search and axe checks passed for home and catalogue. |
+| 2026-11-23 | Phase 5 · F-13/20–23, SEC-05/16 | Availability, booking rules and transitions, draft resume, owner edits, cancellation and no-show sweep | Two SQLite connections yielded one confirmed booking and one SLOT_TAKEN. Chromium guest booking, edit and cancel passed. |
+| 2026-11-23 | Phase 6 · F-30/31/33/35/50 | Project edits and priority, approvals and resubmission, conflict attachment, notifications and schema v2 | verify passed (37 tests, 14 files), Chromium 9 passed, source 631091 bytes before memory update. |
 
 ---
 
@@ -83,6 +86,9 @@
 - **D-013 · 2026-11-23 ·** Fixture IDs are stable and the seed clock is injectable. Demo fixture passwords are disabled in storage and role sessions are issued through the gated demo endpoint.
 - **D-014 · 2026-11-23 ·** The auth dialog keeps the pending draft with its caller and passes it back to the caller after sign-in. Booking will supply the first protected action in Phase 5.
 - **D-015 · 2026-11-23 ·** Demo role sessions are gated at issuance and validation. Account-management services must use the demo-aware admin guard when those writes are introduced.
+- **D-016 · 2026-11-23 ·** Schema v2 adds `project_equipment` and backfills required equipment from existing project-linked bookings. This preserves existing projects and equipment references.
+- **D-017 · 2026-11-23 ·** Catalogue date filters use campus wall time and confirmed blockers. Booking writes invalidate the shared 30-second catalogue cache.
+- **D-018 · 2026-11-23 ·** The approval workflow attaches connected overlapping requests to open groups. Faculty approval waits for lab clearance on equipment that requires it. Changes to ranking, allocation and resolution remain in Phases 7–8.
 
 ---
 

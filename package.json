@@ -14,12 +14,12 @@
     "verify": "npm run lint && npm run typecheck && npm test && npm run build && node scripts/check-repo-size.mjs"
   },
   "dependencies": {
+    "bcryptjs": "3",
+    "better-sqlite3": "12",
     "next": "15",
     "react": "19",
     "react-dom": "19",
-    "zod": "^4.6.7",
-    "better-sqlite3": "12",
-    "bcryptjs": "3"
+    "zod": "^4.6.7"
   },
   "overrides": {
     "next": {
@@ -27,19 +27,20 @@
     }
   },
   "devDependencies": {
-    "typescript": "5",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1",
+    "@types/better-sqlite3": "7",
     "@types/node": "22",
     "@types/react": "19",
     "@types/react-dom": "19",
-    "@types/better-sqlite3": "7",
-    "tailwindcss": "3",
-    "postcss": "^8.5.23",
     "autoprefixer": "10",
     "eslint": "9",
     "eslint-config-next": "15",
+    "postcss": "^8.5.23",
     "prettier": "3",
-    "vitest": "3",
-    "@playwright/test": "1",
-    "tsx": "4"
+    "tailwindcss": "3",
+    "tsx": "4",
+    "typescript": "5",
+    "vitest": "3"
   }
 }

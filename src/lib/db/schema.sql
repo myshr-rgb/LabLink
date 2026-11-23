@@ -170,3 +170,9 @@ CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications (user_id, 
 CREATE INDEX IF NOT EXISTS idx_audit_log_created_at ON audit_log (created_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id);
 CREATE INDEX IF NOT EXISTS idx_maintenance_blocks_equipment_id ON maintenance_blocks (equipment_id, start_at, end_at);
+
+CREATE TABLE IF NOT EXISTS project_equipment (
+  project_id TEXT NOT NULL REFERENCES projects(id),
+  equipment_id TEXT NOT NULL REFERENCES equipment(id),
+  PRIMARY KEY (project_id, equipment_id)
+);

@@ -1,7 +1,9 @@
-import { headers } from "next/headers";
 import Link from "next/link";
 import { UserMenu } from "@/components/layout/UserMenu";
-import { validateSession } from "@/lib/auth/session";
+import { Navigation } from "@/components/layout/Navigation";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { unreadNotificationCount } from "@/services/notification.service";
+import { viewer } from "@/services/viewer.service";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -18,19 +20,41 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }): Promise<ReactNode> {
-  const actor = validateSession((await headers()).get("cookie"), new Date());
+  const actor = await viewer();
+  const unread = actor ? unreadNotificationCount(actor) : 0;
   return (
     <html lang="en">
       <body>
-        <header className="border-b border-border">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3">
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:z-30 focus:bg-bg focus:p-3"
+        >
+          Skip to content
+        </a>
+        <header className="sticky top-0 z-10 border-b border-border bg-bg">
+          <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6">
             <Link href="/" className="font-semibold text-accent">
               LabLink
             </Link>
-            <UserMenu actor={actor} />
+            <Navigation role={actor?.role} />
+            <div className="flex items-center gap-2">
+              {actor && (
+                <NotificationBell
+                  key={actor.userId + ":" + unread}
+                  initial={unread}
+                />
+              )}
+              <UserMenu actor={actor} />
+            </div>
           </div>
         </header>
         {children}
+        <footer className="mx-auto flex max-w-[1120px] flex-wrap gap-4 border-t border-border px-4 py-4 text-sm text-text-muted">
+          <span>Built for campus labs</span>
+          <Link href="/how-it-works" className="underline">
+            How it works
+          </Link>
+        </footer>
       </body>
     </html>
   );

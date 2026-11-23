@@ -13,7 +13,7 @@ it("SEC-03/16 enforces schema constraints and refreshes only live sessions", () 
         .prepare("SELECT count(*) FROM sqlite_master WHERE type='table'")
         .pluck()
         .get(),
-    ).toBe(15);
+    ).toBe(16);
     expect(
       db
         .prepare(

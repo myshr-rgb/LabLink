@@ -17,7 +17,7 @@ export function AuthPageForm({
     router.refresh();
   }
   return (
-    <main className="mx-auto grid max-w-md gap-5 p-6">
+    <main id="content" className="mx-auto grid max-w-md gap-5 p-6">
       <h1 className="text-3xl font-semibold">
         {mode === "login" ? "Sign in" : "Create an account"}
       </h1>
