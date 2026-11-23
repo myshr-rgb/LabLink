@@ -9,20 +9,20 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-11-23 |
-| Project stage | Phases 7–9 verified |
-| Active phase | **Phase 12 — Hardening, accessibility & UX polish** (queued) |
-| Last checkpoint | Phase 7–9 — Allocation, conflict review and Gemini fallbacks |
-| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 75 tests, production build, size gate. |
+| Project stage | Submission README complete and local verification green |
+| Active phase | **Phase 14 — Docs, deploy, submission** (documentation complete, live steps pending) |
+| Last checkpoint | Submission documentation and local verification |
+| Last `npm run verify` | Passed. Lint, strict typecheck, 75 tests across 17 files, production build and size gate. |
 | Last `npm run test:e2e` | 11 passed, including seeded FPGA acceptance, notifications and no-key suggestions. |
 | Live URL | Pending deployment |
 | Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.8 MB |
 | Attempts used (submission) | 0 / 2 |
-| Blockers | Docker CLI unavailable for local image build. |
+| Blockers | Docker CLI unavailable locally. Cloud Run deployment awaits project and deployment access. |
 
 **Next 3 actions:**
-1. Audit security requirements against the implemented routes and write targeted regression tests.
-2. Check accessibility and responsive behavior across the booking and conflict screens.
-3. Review error states and production packaging before deployment.
+1. Deploy the documented Cloud Run service after project access is available.
+2. Check the live health endpoint and demo workflow.
+3. Record the live URL and complete the submission checklist.
 
 ---
 
@@ -52,7 +52,7 @@
 | 11 | Admin | ⬜ | | Skipped per scope. |
 | 12 | Hardening, a11y, UX polish | ⬜ | | |
 | 13 | Test completion & e2e | ⬜ | | |
-| 14 | Docs, deploy, submission | ⬜ | | |
+| 14 | Docs, deploy, submission | 🟨 | 2026-11-23 | README and local verification complete. Cloud Run deployment and submission pending. |
 
 ---
 
@@ -68,6 +68,7 @@
 | 2026-11-23 | Phase 5 · F-13/20–23, SEC-05/16 | Availability, booking rules and transitions, draft resume, owner edits, cancellation and no-show sweep | Two SQLite connections yielded one confirmed booking and one SLOT_TAKEN. Chromium guest booking, edit and cancel passed. |
 | 2026-11-23 | Phase 6 · F-30/31/33/35/50 | Project edits and priority, approvals and resubmission, conflict attachment, notifications and schema v2 | verify passed (37 tests, 14 files), Chromium 9 passed, source 631091 bytes before memory update. |
 | 2026-11-23 | Phases 7–9 · F-12/15/32/40–44/46/47, SEC-19 | Persisted deterministic ranking, staff resolution with audit and notifications, optional Gemini rephrasing/search/draft | verify passed (75 tests, 17 files), Chromium 11 passed, allocation 99.32% lines and 98.78% branches, production audit 0 vulnerabilities. |
+| 2026-11-23 | Submission wrap-up | Updated README with features, local setup, demo accounts, environment variables and Cloud Run deployment. | `npm run verify` passed. 75 tests across 17 files. Size check before memory update reported 764754 bytes of 9000000. |
 
 ---
 
