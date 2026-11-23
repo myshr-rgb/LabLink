@@ -1,0 +1,45 @@
+{
+  "name": "lablink",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src tests scripts --max-warnings=0",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "seed": "tsx scripts/seed.ts",
+    "verify": "npm run lint && npm run typecheck && npm test && npm run build && node scripts/check-repo-size.mjs"
+  },
+  "dependencies": {
+    "next": "15",
+    "react": "19",
+    "react-dom": "19",
+    "zod": "^4.6.7",
+    "better-sqlite3": "12",
+    "bcryptjs": "3"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "$postcss"
+    }
+  },
+  "devDependencies": {
+    "typescript": "5",
+    "@types/node": "22",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "@types/better-sqlite3": "7",
+    "tailwindcss": "3",
+    "postcss": "^8.5.23",
+    "autoprefixer": "10",
+    "eslint": "9",
+    "eslint-config-next": "15",
+    "prettier": "3",
+    "vitest": "3",
+    "@playwright/test": "1",
+    "tsx": "4"
+  }
+}

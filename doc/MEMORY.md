@@ -8,22 +8,21 @@
 ## 1. Current Status  _(overwrite each checkpoint)_
 | Field | Value |
 |---|---|
-| Last updated | 2026-11-23 (planning) |
-| Project stage | **Planning complete — no code written yet** |
-| Active phase | — (next: **Phase 0 — Scaffold & tooling**) |
-| Last checkpoint | Docs created: PRD, ARCHITECTURE, RULES, PHASES, DESIGN, MEMORY, AGENTS/CLAUDE/GEMINI |
-| Last `npm run verify` | n/a (no code yet) |
-| Last `npm run test:e2e` | n/a |
-| Live URL | not deployed |
-| Repo | not created yet (must be public, one branch, `.git` URL, < 10 MB) |
+| Last updated | 2026-11-23 |
+| Project stage | Phase 0 verified |
+| Active phase | **Phase 1 — Data layer & security primitives** (next session) |
+| Last checkpoint | Phase 0 — Scaffold & tooling |
+| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 2 tests, production build, size gate. |
+| Last `npm run test:e2e` | 1 passed. Guest home and HTTP 200 health on the dev server. |
+| Live URL | Pending deployment |
+| Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.5 MB |
 | Attempts used (submission) | 0 / 2 |
-| Blockers | none |
+| Blockers | Docker CLI unavailable for local image build. |
 
-**What is happening now:** waiting to start Phase 0.
 **Next 3 actions:**
-1. Phase 0: scaffold Next.js (TS strict, Tailwind, ESLint boundaries, Vitest, Playwright, Dockerfile, config/errors/logger, `/api/health`).
-2. Phase 1: SQLite schema + migrations + `apiHandler` security pipeline + middleware (CSP).
-3. Phase 2: seed data including the demo conflict scenario.
+1. Extend the version-zero bootstrap with Phase 1 domain tables, indexes, migrations and singleton connection.
+2. Implement repository boundaries, domain types and pure time/overlap helpers.
+3. Implement the security pipeline and middleware, then verify Phase 1 exit criteria.
 
 ---
 
@@ -39,7 +38,7 @@
 ## 3. Phase Tracker  _(update status each checkpoint: ⬜ not started · 🟨 in progress · ✅ done)_
 | # | Phase | Status | Checkpoint date | Notes |
 |---|---|---|---|---|
-| 0 | Scaffold & tooling | ⬜ | | |
+| 0 | Scaffold & tooling | ✅ | 2026-11-23 | Verified locally. Docker unavailable. |
 | 1 | Data layer & security primitives | ⬜ | | |
 | 2 | Seed data | ⬜ | | |
 | 3 | Auth, sessions, RBAC, demo | ⬜ | | |
@@ -61,6 +60,7 @@
 | Date | Phase/Task | What was done | Verification |
 |---|---|---|---|
 | 2026-11-23 | Planning | Read organiser briefing + problem statement; wrote PRD, ARCHITECTURE, RULES, PHASES, DESIGN, MEMORY, AGENTS/CLAUDE/GEMINI | Docs reviewed by user |
+| 2026-11-23 | Phase 0 · F-72, SEC-12/14/18 | Scaffold, version-zero SQLite bootstrap, health probe, tooling and standalone Dockerfile | verify passed (2 tests), Playwright 1 passed, production audit 0 vulnerabilities, source < 0.5 MB. Docker unavailable. |
 
 ---
 
@@ -73,6 +73,8 @@
 - **D-006 · 2026-11-23 ·** Own session auth (no NextAuth/JWT). **Why:** fewer deps/secrets, full control for security scoring.
 - **D-007 · 2026-11-23 ·** No background jobs/websockets; lazy `sweepExpired()` and notification polling. **Why:** Cloud Run simplicity.
 - **D-008 · 2026-11-23 ·** Gemini model id is configurable (`GEMINI_MODEL`); verify the current id in Gemini docs during Phase 9.
+- **D-009 · 2026-11-23 ·** Phase 0 initializes SQLite schema version zero atomically. Domain tables and migrations belong to Phase 1, demo fixtures to Phase 2 (PHASES.md).
+- **D-010 · 2026-11-23 ·** Pin Next’s transitive PostCSS to the patched approved PostCSS range. The generated npm lockfile exceeds the general 100 KB file cap and is retained for reproducible installs as required.
 
 ---
 
@@ -93,11 +95,11 @@
 ---
 
 ## 9. Environment Notes  _(fill as discovered)_
-- Node version: _(tbd — target 22 LTS)_
-- Package manager: npm
+- Node version: 24.19.0 locally, container targets 22 LTS
+- Package manager: npm 11.17.0
 - Local run: `npm install && npm run dev` → http://localhost:3000
 - Demo logins: _(document after Phase 3; also in README)_
-- Docker available in dev env? _(tbd)_
+- Docker CLI unavailable. Image build deferred to a Docker-enabled host.
 - Cloud Run service URL: _(tbd)_
 
 ---

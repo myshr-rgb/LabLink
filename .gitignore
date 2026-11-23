@@ -1,0 +1,14 @@
+node_modules/
+.next/
+data/
+*.db
+*.sqlite*
+*.db-wal
+*.db-shm
+*.db-journal
+.env*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
