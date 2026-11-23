@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { EquipmentCard } from "@/components/equipment/EquipmentCard";
+import { MaintenanceForm } from "@/components/equipment/MaintenanceForm";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { ACCESS_LABELS } from "@/types/equipment";
 import { card, page } from "@/components/ui/workflow-ui";
@@ -10,11 +12,16 @@ import { bookingDetail } from "@/services/booking.service";
 import {
   equipmentAvailability,
   equipmentDetail,
+  similarEquipment,
 } from "@/services/equipment.service";
 import { projects } from "@/services/project.service";
 import { viewer } from "@/services/viewer.service";
 
-const route = z.strictObject({ booking: z.uuid().optional() });
+const route = z.strictObject({
+  booking: z.uuid().optional(),
+  start: z.iso.datetime().optional(),
+  end: z.iso.datetime().optional(),
+});
 export async function generateMetadata({
   params,
 }: {
@@ -42,6 +49,7 @@ export default async function Detail({
   const now = new Date();
   try {
     const item = equipmentDetail(id);
+    const similar = similarEquipment(item);
     const editId = parsed.data.booking;
     if (editId && !actor) notFound();
     const editing = editId ? bookingDetail(actor, editId, now) : undefined;
@@ -100,11 +108,32 @@ export default async function Detail({
             item={{ id, name, status, accessType, maxBookingMinutes }}
             days={equipmentAvailability(id, now, editing?.id)}
             editing={editing}
+            prefill={
+              parsed.data.start &&
+              parsed.data.end &&
+              parsed.data.start < parsed.data.end
+                ? { startAt: parsed.data.start, endAt: parsed.data.end }
+                : undefined
+            }
             actor={actor}
             demoMode={getConfig().DEMO_MODE}
             projectChoices={choices.map(({ id, title }) => ({ id, title }))}
           />
         </div>
+        {(actor?.role === "admin" ||
+          (actor?.role === "incharge" && actor.userId === item.inChargeId)) && (
+          <MaintenanceForm id={id} />
+        )}
+        {similar.length > 0 && (
+          <section aria-label="Similar equipment" className="space-y-3">
+            <h2 className="text-xl font-semibold">Similar equipment</h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {similar.map((row) => (
+                <EquipmentCard key={row.id} item={row} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     );
   } catch (error) {

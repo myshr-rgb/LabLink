@@ -16,6 +16,12 @@ interface Options<P extends Shape, Q extends Shape, B extends Shape, T> {
   enabled?: () => boolean;
   auth: "public" | "user" | { roles: readonly Role[] };
   bucket: Bucket;
+  sessionBucket?: {
+    name: string;
+    guest: number;
+    user: number;
+    windowMs: number;
+  };
   params?: P;
   query?: Q;
   body?: B;
@@ -124,10 +130,22 @@ export function apiHandler<
       const ip = process.env.K_SERVICE
         ? request.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim()
         : undefined;
-      deps.limiter.check(options.bucket, ip && isIP(ip) ? ip : "local", +now);
+      const address = ip && isIP(ip) ? ip : "local";
+      deps.limiter.check(options.bucket, address, +now);
       checkOrigin(request, getConfig().APP_URL);
       const actor = deps.loadSession(request, now);
       authorize(options.auth, actor);
+      const rate = options.sessionBucket;
+      if (rate)
+        deps.limiter.check(
+          {
+            name: rate.name,
+            limit: actor ? rate.user : rate.guest,
+            windowMs: rate.windowMs,
+          },
+          actor ? `user:${actor.userId}` : `guest:${address}`,
+          +now,
+        );
       const params = parse(
         options.params,
         (await context.params) ?? {},

@@ -14,7 +14,7 @@ it("F-30 upgrades existing projects without losing bookings or their equipment h
     migrate(db);
     expect(
       db.prepare("SELECT version FROM schema_version").pluck().all(),
-    ).toEqual([2]);
+    ).toEqual([3]);
     expect(db.prepare("SELECT count(*) FROM projects").pluck().get()).toBe(3);
     expect(db.prepare("SELECT count(*) FROM bookings").pluck().get()).toBe(12);
     expect(

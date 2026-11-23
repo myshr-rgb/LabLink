@@ -58,6 +58,10 @@ export function seedProjects(db: Database.Database, now: Date): void {
       at,
       at,
     );
+    db.prepare("UPDATE bookings SET incharge_approved_at=? WHERE id=?").run(
+      at,
+      fixtureId(9, i),
+    );
     for (let j = 0; j <= i + 1; j++) {
       const start = slot - (j + i + 2) * day;
       booking.run(

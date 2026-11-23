@@ -30,7 +30,9 @@ export default async function NotificationsPage(): Promise<React.JSX.Element> {
                     className="inline-flex min-h-11 items-center text-accent underline"
                     href={item.link}
                   >
-                    View details
+                    {item.title === "Request alternative"
+                      ? "Request alternative"
+                      : "View details"}
                   </Link>
                 )}
                 {!item.readAt && <MarkNotification id={item.id} />}

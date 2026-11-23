@@ -9,20 +9,20 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-11-23 |
-| Project stage | Phases 4–6 verified |
-| Active phase | **Phase 7 — Conflict detection & allocation engine** (next session) |
-| Last checkpoint | Phase 4–6 — Catalogue, bookings, projects, approvals and notifications |
-| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 37 tests, production build, size gate. |
-| Last `npm run test:e2e` | 9 passed. Includes guest catalogue and axe, resumed booking, booking edits and cancellation, project approval and notification read. |
+| Project stage | Phases 7–9 verified |
+| Active phase | **Phase 12 — Hardening, accessibility & UX polish** (queued) |
+| Last checkpoint | Phase 7–9 — Allocation, conflict review and Gemini fallbacks |
+| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 75 tests, production build, size gate. |
+| Last `npm run test:e2e` | 11 passed, including seeded FPGA acceptance, notifications and no-key suggestions. |
 | Live URL | Pending deployment |
-| Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.7 MB |
+| Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.8 MB |
 | Attempts used (submission) | 0 / 2 |
 | Blockers | Docker CLI unavailable for local image build. |
 
 **Next 3 actions:**
-1. Build the deterministic allocation engine with deadline, priority, usage and wait-time factors.
-2. Build engine input from conflict groups, projects, booking history and policy.
-3. Persist allocation decisions and verify ranking, alternatives and explanations against seeded fixtures.
+1. Audit security requirements against the implemented routes and write targeted regression tests.
+2. Check accessibility and responsive behavior across the booking and conflict screens.
+3. Review error states and production packaging before deployment.
 
 ---
 
@@ -45,11 +45,11 @@
 | 4 | Public catalogue & keyword search | ✅ | 2026-11-23 | Public inventory, combined URL filters and axe checks. |
 | 5 | Availability & direct booking | ✅ | 2026-11-23 | IST slots, guest draft resume, transactional booking and owner-only edits. |
 | 6 | Projects, approvals, notifications | ✅ | 2026-11-23 | Project team and equipment, guide decisions, conflict groups and unread notifications. |
-| 7 | Conflict detection & allocation engine | ⬜ | | |
-| 8 | Conflict resolution UI (HITL) | ⬜ | | |
-| 9 | AI layer + fallbacks | ⬜ | | |
-| 10 | In-charge & equipment management | ⬜ | | |
-| 11 | Admin | ⬜ | | |
+| 7 | Conflict detection & allocation engine | ✅ | 2026-11-23 | Seeded ranking and 99.32% allocation line coverage. |
+| 8 | Conflict resolution UI (HITL) | ✅ | 2026-11-23 | Review, audited resolution, alternative links and maintenance proposals. |
+| 9 | AI layer + fallbacks | ✅ | 2026-11-23 | No-key browser flows and mocked Gemini contract verified. |
+| 10 | In-charge & equipment management | ⬜ | | Skipped per scope. |
+| 11 | Admin | ⬜ | | Skipped per scope. |
 | 12 | Hardening, a11y, UX polish | ⬜ | | |
 | 13 | Test completion & e2e | ⬜ | | |
 | 14 | Docs, deploy, submission | ⬜ | | |
@@ -67,6 +67,7 @@
 | 2026-11-23 | Phase 4 · F-10/11/13 | Public catalogue, keyword scoring, URL filters, ordering, pagination and bounded 30-second LRU | verify passed. Chromium guest search and axe checks passed for home and catalogue. |
 | 2026-11-23 | Phase 5 · F-13/20–23, SEC-05/16 | Availability, booking rules and transitions, draft resume, owner edits, cancellation and no-show sweep | Two SQLite connections yielded one confirmed booking and one SLOT_TAKEN. Chromium guest booking, edit and cancel passed. |
 | 2026-11-23 | Phase 6 · F-30/31/33/35/50 | Project edits and priority, approvals and resubmission, conflict attachment, notifications and schema v2 | verify passed (37 tests, 14 files), Chromium 9 passed, source 631091 bytes before memory update. |
+| 2026-11-23 | Phases 7–9 · F-12/15/32/40–44/46/47, SEC-19 | Persisted deterministic ranking, staff resolution with audit and notifications, optional Gemini rephrasing/search/draft | verify passed (75 tests, 17 files), Chromium 11 passed, allocation 99.32% lines and 98.78% branches, production audit 0 vulnerabilities. |
 
 ---
 
@@ -88,7 +89,9 @@
 - **D-015 · 2026-11-23 ·** Demo role sessions are gated at issuance and validation. Account-management services must use the demo-aware admin guard when those writes are introduced.
 - **D-016 · 2026-11-23 ·** Schema v2 adds `project_equipment` and backfills required equipment from existing project-linked bookings. This preserves existing projects and equipment references.
 - **D-017 · 2026-11-23 ·** Catalogue date filters use campus wall time and confirmed blockers. Booking writes invalidate the shared 30-second catalogue cache.
-- **D-018 · 2026-11-23 ·** The approval workflow attaches connected overlapping requests to open groups. Faculty approval waits for lab clearance on equipment that requires it. Changes to ranking, allocation and resolution remain in Phases 7–8.
+- **D-018 · 2026-11-23 ·** The approval workflow attaches connected overlapping requests to open groups. Faculty approval waits for lab clearance on equipment that requires it. Ranking, allocation and resolution were added in Phases 7–8.
+- **D-019 · 2026-11-23 ·** Schema v3 backfills lab clearance for the three existing seeded FPGA requests. Allocation uses completed booking hours per student over 14 days and no-shows over 60 days. Pending or uncleared requests appear separately during review.
+- **D-020 · 2026-11-23 ·** Gemini defaults to `gemini-3.1-flash-lite` after checking Google’s model listing. The runtime model remains configurable. Conflict phrasing runs on staff request and preserves the deterministic explanation for audits.
 
 ---
 
@@ -102,10 +105,10 @@
 | ID | Description | Severity | Phase to fix |
 |---|---|---|---|
 | I-001 | Verify forwarded client address at the deployed Cloud Run ingress for per-client rate limiting. | Deployment check | 14 |
+| I-002 | Gemini success and failure paths verified with a mock SDK. Live provider credentials were unavailable for a smoke test. | Deployment check | 14 |
 
 ## 8. Blockers & Open Questions
 - Need from user at deploy time: Google Cloud project, Cloud Run region (suggested `asia-south1`), `GEMINI_API_KEY` (optional — app works without it), GitHub repo URL.
-- Confirm Gemini model id at Phase 9.
 
 ---
 

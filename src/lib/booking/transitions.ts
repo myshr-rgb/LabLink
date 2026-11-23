@@ -15,7 +15,12 @@ const transitions = {
     displace: "displaced",
     cancel: "cancelled",
   },
-  approved: { checkIn: "checked_in", expire: "no_show", cancel: "cancelled" },
+  approved: {
+    maintenance: "displaced",
+    checkIn: "checked_in",
+    expire: "no_show",
+    cancel: "cancelled",
+  },
   checked_in: { checkOut: "completed" },
 } satisfies Partial<Record<BookingStatus, Record<string, BookingStatus>>>;
 type EventMap = typeof transitions;

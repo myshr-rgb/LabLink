@@ -1,10 +1,13 @@
 "use client";
+import { useState } from "react";
+import { apiRequest } from "@/components/ui/api-request";
 import Link from "next/link";
-import { control } from "@/components/ui/workflow-ui";
+import { control, secondary } from "@/components/ui/workflow-ui";
 import type { Project } from "@/types/workflow";
 
 export function RequestFields({
   projects,
+  equipmentId,
   projectId,
   justification,
   onProject,
@@ -12,6 +15,7 @@ export function RequestFields({
   returnTo,
   decisionNote,
 }: {
+  equipmentId: string;
   projects: Pick<Project, "id" | "title">[];
   projectId: string;
   justification: string;
@@ -20,6 +24,28 @@ export function RequestFields({
   returnTo: string;
   decisionNote?: string | null;
 }): React.JSX.Element {
+  const [source, setSource] = useState<"ai" | "rules" | null>(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function suggest(): Promise<void> {
+    setBusy(true);
+    setError("");
+    setSource(null);
+    try {
+      const response = await apiRequest<{
+        result: string;
+        source: "ai" | "rules";
+      }>("/api/bookings/justification", "POST", { projectId, equipmentId });
+      onPurpose(response.result);
+      setSource(response.source);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Could not suggest text.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="grid gap-3">
       {decisionNote && (
@@ -59,6 +85,25 @@ export function RequestFields({
           onChange={(event) => onPurpose(event.target.value)}
         />
       </label>
+      <button
+        type="button"
+        className={secondary + " justify-self-start"}
+        disabled={busy || !projectId}
+        onClick={() => void suggest()}
+      >
+        {busy ? "Drafting…" : "Suggest justification"}
+      </button>
+      {source && (
+        <p role="status">
+          {source === "ai" ? "AI-assisted" : "Rule-based"} suggestion. Review
+          the text before sending.
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="text-danger">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

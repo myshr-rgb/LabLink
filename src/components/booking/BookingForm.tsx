@@ -36,6 +36,7 @@ interface Props {
   demoMode: boolean;
   projectChoices: Pick<Project, "id" | "title">[];
   editing?: Booking;
+  prefill?: Window;
 }
 export function BookingForm({
   item,
@@ -44,6 +45,7 @@ export function BookingForm({
   demoMode,
   projectChoices,
   editing,
+  prefill,
 }: Props): React.JSX.Element {
   const router = useRouter();
   const storageKey = `lablink:booking:${editing?.id ?? item.id}`;
@@ -51,7 +53,9 @@ export function BookingForm({
     days.find((day) => day.slots.some((slot) => slot.state === "free"))?.date ??
     days[0].date;
   const [date, setDate] = useState(
-    editing ? campusDate(new Date(editing.startAt)) : first,
+    editing || prefill
+      ? campusDate(new Date((editing ?? prefill)!.startAt))
+      : first,
   );
   const [draft, setDraft] = useState<Draft | null>(
     editing
@@ -60,7 +64,9 @@ export function BookingForm({
           projectId: editing.projectId ?? "",
           purpose: editing.justification,
         }
-      : null,
+      : prefill
+        ? { window: prefill, projectId: "", purpose: "" }
+        : null,
   );
   const [dialog, setDialog] = useState(false);
   const [message, setMessage] = useState("");
@@ -80,7 +86,7 @@ export function BookingForm({
     try {
       const saved = sessionStorage.getItem(storageKey);
       const parsed = savedDraft.safeParse(saved ? JSON.parse(saved) : null);
-      if (parsed.success) {
+      if (parsed.success && !prefill) {
         const day = campusDate(new Date(parsed.data.window.startAt));
         setDraft(parsed.data);
         setDate(day);
@@ -88,7 +94,7 @@ export function BookingForm({
     } catch {
       /* Storage can be disabled. The in-memory draft still works. */
     }
-  }, [storageKey]);
+  }, [storageKey, prefill]);
 
   function save(value: Draft | null): void {
     setDraft(value);
@@ -205,6 +211,7 @@ export function BookingForm({
       {approval && actor && draft && (
         <RequestFields
           projects={projectChoices}
+          equipmentId={item.id}
           projectId={draft.projectId}
           justification={draft.purpose}
           onProject={(projectId) => save({ ...draft, projectId })}

@@ -1,14 +1,12 @@
-import { randomUUID } from "node:crypto";
 import { blockingWindows } from "@/lib/db/repositories/availability.repo";
 import {
-  competingCluster,
   detachConflict,
   remainingConflictMembers,
-  persistConflict,
 } from "@/lib/db/repositories/conflict.repo";
 import { findBooking } from "@/lib/db/repositories/booking.repo";
 import { insertNotice } from "@/lib/db/repositories/notification.repo";
 import type { Booking } from "@/types/workflow";
+import { attachConflict } from "./conflict.service";
 import { applyEvent } from "./booking-state";
 import { equipmentDetail } from "./equipment.service";
 import { alternatives } from "./booking-availability";
@@ -39,20 +37,8 @@ export function tryConfirm(booking: Booking, now: Date): Booking["status"] {
   }
   if (item.requiresInchargeApproval && !booking.inchargeApprovedAt)
     return booking.status;
-  const cluster = competingCluster(item.id, booking.id);
-  if (cluster.length <= 1) return applyEvent(booking, "confirm", null, now);
-  const existing = cluster.find((candidate) => candidate.groupId)?.groupId;
-  persistConflict(existing ?? randomUUID(), item.id, cluster, now);
-  if (!existing)
-    insertNotice(
-      item.inChargeId,
-      "booking.conflict",
-      "Overlapping access requests",
-      `Requests overlap for ${item.name}.`,
-      "/notifications",
-      now,
-    );
-  return booking.status;
+  if (attachConflict(item, booking, now)) return booking.status;
+  return applyEvent(booking, "confirm", null, now);
 }
 
 /** Reconsider a group's last remaining request after another one leaves. */

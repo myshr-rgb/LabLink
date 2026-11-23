@@ -6,12 +6,19 @@ type Level = keyof typeof LEVELS;
 /** Emit only operational fields; never serialize caller payloads or credentials. */
 export function log(
   level: Level,
-  event: "startup" | "request" | "error",
-  context: { requestId?: string; status?: number; durationMs?: number } = {},
+  event: "startup" | "request" | "error" | "ai",
+  context: {
+    requestId?: string;
+    status?: number;
+    durationMs?: number;
+    feature?: string;
+    outcome?: string;
+    source?: string;
+  } = {},
 ): void {
   if (level !== "error" && LEVELS[level] < LEVELS[getConfig().LOG_LEVEL])
     return;
-  const { requestId, status, durationMs } = context;
+  const { requestId, status, durationMs, feature, outcome, source } = context;
   process.stdout.write(
     JSON.stringify({
       time: new Date().toISOString(),
@@ -20,6 +27,9 @@ export function log(
       requestId,
       status,
       durationMs,
+      feature,
+      outcome,
+      source,
     }) + "\n",
   );
 }

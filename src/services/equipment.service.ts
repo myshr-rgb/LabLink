@@ -112,3 +112,19 @@ export function publicEquipment(
   delete fields.departmentId;
   return fields as Omit<Equipment, "inChargeId" | "departmentId">;
 }
+
+/** Find similar available inventory by category and shared tags. */
+export function similarEquipment(item: Equipment): Equipment[] {
+  return findEquipmentList({ category: item.category })
+    .filter((row) => row.id !== item.id && row.status === "available")
+    .map((row) => ({
+      row,
+      shared: row.tags.filter((tag) => item.tags.includes(tag)).length,
+    }))
+    .filter((match) => match.shared > 0)
+    .sort(
+      (a, b) => b.shared - a.shared || byName.compare(a.row.name, b.row.name),
+    )
+    .slice(0, 3)
+    .map((match) => match.row);
+}

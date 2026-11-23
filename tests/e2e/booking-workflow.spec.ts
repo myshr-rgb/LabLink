@@ -72,7 +72,7 @@ test("F-30/31/33/50 faculty approves a project request and the student reads the
   await page
     .getByLabel("Faculty guide")
     .selectOption({ label: "Demo faculty" });
-  const deadline = new Date(Date.now() + 7 * 86_400_000)
+  const deadline = new Date(+new Date() + 7 * 86_400_000)
     .toISOString()
     .slice(0, 16);
   await page.getByLabel("Deadline (IST)", { exact: true }).fill(deadline);
@@ -85,6 +85,10 @@ test("F-30/31/33/50 faculty approves a project request and the student reads the
   await page
     .getByLabel("Project", { exact: true })
     .selectOption({ label: "Chromium bench project" });
+  await page.getByRole("button", { name: "Suggest justification" }).click();
+  await expect(
+    page.getByText("Rule-based suggestion. Review the text before sending."),
+  ).toBeVisible();
   await page
     .getByLabel("Purpose")
     .fill("Benchmark a campus sensor simulation.");
@@ -114,7 +118,8 @@ test("F-30/31/33/50 faculty approves a project request and the student reads the
   await page.goto("/notifications");
   const notice = page
     .getByRole("listitem")
-    .filter({ has: page.getByRole("heading", { name: "Booking approved" }) });
+    .filter({ has: page.getByRole("heading", { name: "Booking approved" }) })
+    .filter({ hasText: "GPU Workstation A" });
   await notice.getByRole("button", { name: "Mark as read" }).click();
   await expect(notice).toContainText("· Read");
 });

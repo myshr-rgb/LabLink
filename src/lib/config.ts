@@ -14,7 +14,7 @@ const schema = z
       .default("false")
       .transform((value) => value === "true"),
     GEMINI_API_KEY: z.string().default(""),
-    GEMINI_MODEL: z.string().min(1).default("gemini-2.5-flash"),
+    GEMINI_MODEL: z.string().min(1).default("gemini-3.1-flash-lite"),
     AI_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
     LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   })

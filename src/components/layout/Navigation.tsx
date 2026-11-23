@@ -17,6 +17,8 @@ export function Navigation({
   if (role) links.push(["/bookings", "My bookings"], ["/projects", "Projects"]);
   if (role === "faculty" || role === "admin")
     links.push(["/approvals", "Approvals"]);
+  if (role === "incharge" || role === "admin")
+    links.push(["/conflicts", "Conflicts"]);
   const nav = (mobile: boolean) => (
     <nav
       aria-label="Main"
