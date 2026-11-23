@@ -45,3 +45,17 @@ test("F-10/11 guest search combines URL filters and passes catalogue accessibili
     page.getByRole("heading", { name: "Choose a time" }),
   ).toBeVisible();
 });
+
+test("Workflow previews open from the keyboard and today's slots open in the catalogue", async ({
+  page,
+}) => {
+  await page.goto("/");
+  for (const summary of await page.locator("#content details summary").all()) {
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    await expect(summary.locator("..")).toHaveAttribute("open", "");
+  }
+  await expect(page.locator("#content details[open]")).toHaveCount(4);
+  await page.getByRole("link", { name: "Free slots today" }).click();
+  await expect(page).toHaveURL(/\/equipment\?date=\d{4}-\d{2}-\d{2}$/);
+});

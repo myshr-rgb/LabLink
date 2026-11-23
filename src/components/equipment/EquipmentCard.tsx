@@ -10,14 +10,27 @@ export function EquipmentCard({
 }): React.JSX.Element {
   return (
     <article className={card + " flex flex-col gap-3"}>
-      <Image
-        src={item.imagePath}
-        alt=""
-        width={56}
-        height={56}
-        className="rounded-lg"
-        unoptimized
-      />
+      <div className="flex items-center justify-between gap-2">
+        <Image
+          src={item.imagePath}
+          alt=""
+          width={56}
+          height={56}
+          className="rounded-lg"
+          unoptimized
+        />
+        <span className="rounded-full border border-border bg-surface px-2 py-1 text-sm font-medium">
+          <span
+            aria-hidden="true"
+            className={
+              item.status === "available" ? "text-success" : "text-warning"
+            }
+          >
+            &#9679;{" "}
+          </span>
+          {item.status === "available" ? "Available" : "Maintenance"}
+        </span>
+      </div>
       <h2 className="text-lg font-semibold">{item.name}</h2>
       <p className="text-sm text-text-muted">
         {item.lab} · {item.department}
@@ -25,8 +38,7 @@ export function EquipmentCard({
       <p className="text-sm text-text-muted">{item.location}</p>
       <div className="mt-auto flex flex-wrap gap-2 text-sm">
         <span className="rounded-full bg-surface px-2 py-1">
-          <span aria-hidden="true">● </span>
-          {item.status === "available" ? "Available" : "Maintenance"}
+          Up to {item.maxBookingMinutes} min per booking
         </span>
         <span className="rounded-full bg-accent-soft px-2 py-1 text-accent">
           {ACCESS_LABELS[item.accessType]}

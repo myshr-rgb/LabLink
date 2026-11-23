@@ -16,6 +16,11 @@ it.each([
 });
 it("SEC-10 production policy sets HSTS and requires nonced scripts", () => {
   const headers = securityHeaders("testnonce", true);
+  expect(headers.get("X-Frame-Options")).toBe("DENY");
+  expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
+  expect(headers.get("Referrer-Policy")).toBe(
+    "strict-origin-when-cross-origin",
+  );
   expect(headers.get("Strict-Transport-Security")).toContain("max-age=");
   expect(headers.get("Content-Security-Policy")).toContain(
     "'nonce-testnonce' 'strict-dynamic'",

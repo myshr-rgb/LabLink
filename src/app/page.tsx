@@ -1,6 +1,7 @@
+import { campusDate } from "@/lib/booking/time";
 import Link from "next/link";
 import { SearchBox } from "@/components/equipment/SearchBox";
-import { card, page } from "@/components/ui/workflow-ui";
+import { page } from "@/components/ui/workflow-ui";
 
 const topics = [
   ["FPGA boards", "FPGA"],
@@ -11,7 +12,7 @@ const topics = [
 export default function Home(): React.JSX.Element {
   return (
     <main id="content" className={page + " space-y-12"}>
-      <section className="rounded-2xl border border-border bg-surface p-6 sm:p-12">
+      <section className="rounded-2xl border border-border bg-gradient-to-br from-accent-soft to-bg p-6 shadow-sm sm:p-12">
         <div className="max-w-3xl space-y-5">
           <h1 className="text-3xl font-semibold sm:text-4xl">
             Find the lab equipment you need
@@ -22,6 +23,12 @@ export default function Home(): React.JSX.Element {
           </p>
           <SearchBox />
           <div className="flex flex-wrap gap-2">
+            <Link
+              className="inline-flex min-h-11 items-center rounded-full bg-accent px-4 font-medium text-bg hover:bg-accent-hover"
+              href={`/equipment?date=${campusDate(new Date())}`}
+            >
+              Free slots today
+            </Link>
             {topics.map(([label, q]) => (
               <Link
                 key={q}
@@ -40,13 +47,36 @@ export default function Home(): React.JSX.Element {
         </h2>
         <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            "Find equipment",
-            "Pick a slot",
-            "Get approval if required",
-            "Use the lab",
-          ].map((step) => (
-            <li key={step} className={card}>
-              {step}
+            [
+              "Find equipment",
+              "Search by name or filter the catalogue by department, category or access type.",
+            ],
+            [
+              "Pick a slot",
+              "Open an equipment page to see free times and choose a booking window in campus time (IST).",
+            ],
+            [
+              "Get approval if required",
+              "For equipment that needs approval, select your project and explain how you plan to use it.",
+            ],
+            [
+              "Use the lab",
+              "Check your confirmed booking for the equipment, lab location and reserved time.",
+            ],
+          ].map(([step, preview]) => (
+            <li key={step}>
+              <details
+                className={
+                  "rounded-xl border border-border bg-bg shadow-sm open:border-accent"
+                }
+              >
+                <summary className="cursor-pointer p-4 font-semibold text-accent">
+                  {step}
+                </summary>
+                <p className="mx-4 mb-4 border-t border-border pt-3 text-sm text-text-muted">
+                  {preview}
+                </p>
+              </details>
             </li>
           ))}
         </ol>

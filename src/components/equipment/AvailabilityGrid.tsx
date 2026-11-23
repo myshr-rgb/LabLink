@@ -55,7 +55,8 @@ export function AvailabilityGrid({
           >
             {days.map((day) => (
               <option value={day.date} key={day.date}>
-                {dayLabel(day.date)}
+                {dayLabel(day.date)} (
+                {day.slots.filter((slot) => slot.state === "free").length} free)
               </option>
             ))}
           </select>

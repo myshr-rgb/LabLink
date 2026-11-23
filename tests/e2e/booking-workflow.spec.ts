@@ -42,6 +42,11 @@ test("F-20/21 guest booking resumes after sign-in and can be modified and cancel
     .filter({ has: page.getByRole("heading", { name: "Raspberry Pi 5" }) });
   await expect(booking).toContainText("Approved");
   await booking.getByRole("link", { name: "Modify booking" }).click();
+  const day = page.getByRole("combobox", { name: "Booking day" });
+  const availableDay = day
+    .getByRole("option", { name: /\((?:[2-9]|\d{2,}) free\)/ })
+    .first();
+  await day.selectOption((await availableDay.getAttribute("value")) ?? "");
   await page
     .getByTestId("slot-button")
     .filter({ hasText: "Free" })
