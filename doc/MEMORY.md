@@ -9,10 +9,10 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-11-23 |
-| Project stage | Phase 1 verified |
-| Active phase | **Phase 2 — Seed data** (next session) |
-| Last checkpoint | Phase 1 — Data layer & security primitives |
-| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 17 tests, production build, size gate. |
+| Project stage | Phase 2 verified |
+| Active phase | **Phase 3 — Auth, sessions, RBAC, demo** (next session) |
+| Last checkpoint | Phase 2 — Seed data |
+| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 18 tests, production build, size gate. |
 | Last `npm run test:e2e` | 1 passed. Chromium verified the rendered script nonce, fresh CSP, nosniff and HTTP 200 health envelope. |
 | Live URL | Pending deployment |
 | Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.5 MB |
@@ -20,9 +20,9 @@
 | Blockers | Docker CLI unavailable for local image build. |
 
 **Next 3 actions:**
-1. Prepare deterministic department, lab, equipment and fictional user fixtures.
-2. Add projects, usage history and the three-request FPGA conflict fixture.
-3. Gate seeding on an empty departments table and test counts and repeat runs.
+1. Add password policy, session lifecycle and role guards.
+2. Add auth routes, role demos and audit events.
+3. Build auth pages and verify role demos in Chromium.
 
 ---
 
@@ -40,7 +40,7 @@
 |---|---|---|---|---|
 | 0 | Scaffold & tooling | ✅ | 2026-11-23 | Verified locally. Docker unavailable. |
 | 1 | Data layer & security primitives | ✅ | 2026-11-23 | Schema v1, booking primitives, security pipeline and CSP verified. |
-| 2 | Seed data | ⬜ | | |
+| 2 | Seed data | ✅ | 2026-11-23 | 36 equipment items, 23 users and a three-request conflict. |
 | 3 | Auth, sessions, RBAC, demo | ⬜ | | |
 | 4 | Public catalogue & keyword search | ⬜ | | |
 | 5 | Availability & direct booking | ⬜ | | |
@@ -62,6 +62,7 @@
 | 2026-11-23 | Planning | Read organiser briefing + problem statement; wrote PRD, ARCHITECTURE, RULES, PHASES, DESIGN, MEMORY, AGENTS/CLAUDE/GEMINI | Docs reviewed by user |
 | 2026-11-23 | Phase 0 · F-72, SEC-12/14/18 | Scaffold, version-zero SQLite bootstrap, health probe, tooling and standalone Dockerfile | verify passed (2 tests), Playwright 1 passed, production audit 0 vulnerabilities, source < 0.5 MB. Docker unavailable. |
 | 2026-11-23 | Phase 1 · SEC-03/06/07/09/10/11/13/16 | Migrated fresh and v0 databases, added repository mappings, IST/overlap helpers, session lookup, API pipeline and nonce middleware | verify passed (17 tests, 6 files), Playwright 1 passed, source 432676 bytes before memory update, production audit 0 vulnerabilities. |
+| 2026-11-23 | Phase 2 · F-71 | Atomic first-use seed and SVG illustrations | verify passed (18 tests, 7 files), size 445180 bytes before memory update. |
 
 ---
 
@@ -78,6 +79,7 @@
 - **D-010 · 2026-11-23 ·** Pin Next’s transitive PostCSS to the patched approved PostCSS range. The generated npm lockfile exceeds the general 100 KB file cap and is retained for reproducible installs as required.
 - **D-011 · 2026-11-23 ·** Use dynamic HTML rendering so Next embeds the middleware nonce in each response. Resolve production configuration at request time so image builds do not need deployment secrets.
 - **D-012 · 2026-11-23 ·** Rate limiting uses named process-local sliding windows. Local requests share one client bucket. On Cloud Run the limiter uses the forwarded chain suffix; verify ingress behavior during deployment.
+- **D-013 · 2026-11-23 ·** Fixture IDs are stable and the seed clock is injectable. Demo fixture passwords are disabled in storage and role sessions are issued through the gated demo endpoint.
 
 ---
 
