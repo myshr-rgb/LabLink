@@ -9,20 +9,20 @@
 | Field | Value |
 |---|---|
 | Last updated | 2026-11-23 |
-| Project stage | Phase 0 verified |
-| Active phase | **Phase 1 — Data layer & security primitives** (next session) |
-| Last checkpoint | Phase 0 — Scaffold & tooling |
-| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 2 tests, production build, size gate. |
-| Last `npm run test:e2e` | 1 passed. Guest home and HTTP 200 health on the dev server. |
+| Project stage | Phase 1 verified |
+| Active phase | **Phase 2 — Seed data** (next session) |
+| Last checkpoint | Phase 1 — Data layer & security primitives |
+| Last `npm run verify` | Passed with zero warnings. Lint, strict typecheck, 17 tests, production build, size gate. |
+| Last `npm run test:e2e` | 1 passed. Chromium verified the rendered script nonce, fresh CSP, nosniff and HTTP 200 health envelope. |
 | Live URL | Pending deployment |
 | Repo | https://github.com/myshr-rgb/LabLink.git · main · source under 0.5 MB |
 | Attempts used (submission) | 0 / 2 |
 | Blockers | Docker CLI unavailable for local image build. |
 
 **Next 3 actions:**
-1. Extend the version-zero bootstrap with Phase 1 domain tables, indexes, migrations and singleton connection.
-2. Implement repository boundaries, domain types and pure time/overlap helpers.
-3. Implement the security pipeline and middleware, then verify Phase 1 exit criteria.
+1. Prepare deterministic department, lab, equipment and fictional user fixtures.
+2. Add projects, usage history and the three-request FPGA conflict fixture.
+3. Gate seeding on an empty departments table and test counts and repeat runs.
 
 ---
 
@@ -39,7 +39,7 @@
 | # | Phase | Status | Checkpoint date | Notes |
 |---|---|---|---|---|
 | 0 | Scaffold & tooling | ✅ | 2026-11-23 | Verified locally. Docker unavailable. |
-| 1 | Data layer & security primitives | ⬜ | | |
+| 1 | Data layer & security primitives | ✅ | 2026-11-23 | Schema v1, booking primitives, security pipeline and CSP verified. |
 | 2 | Seed data | ⬜ | | |
 | 3 | Auth, sessions, RBAC, demo | ⬜ | | |
 | 4 | Public catalogue & keyword search | ⬜ | | |
@@ -61,6 +61,7 @@
 |---|---|---|---|
 | 2026-11-23 | Planning | Read organiser briefing + problem statement; wrote PRD, ARCHITECTURE, RULES, PHASES, DESIGN, MEMORY, AGENTS/CLAUDE/GEMINI | Docs reviewed by user |
 | 2026-11-23 | Phase 0 · F-72, SEC-12/14/18 | Scaffold, version-zero SQLite bootstrap, health probe, tooling and standalone Dockerfile | verify passed (2 tests), Playwright 1 passed, production audit 0 vulnerabilities, source < 0.5 MB. Docker unavailable. |
+| 2026-11-23 | Phase 1 · SEC-03/06/07/09/10/11/13/16 | Migrated fresh and v0 databases, added repository mappings, IST/overlap helpers, session lookup, API pipeline and nonce middleware | verify passed (17 tests, 6 files), Playwright 1 passed, source 432676 bytes before memory update, production audit 0 vulnerabilities. |
 
 ---
 
@@ -75,6 +76,8 @@
 - **D-008 · 2026-11-23 ·** Gemini model id is configurable (`GEMINI_MODEL`); verify the current id in Gemini docs during Phase 9.
 - **D-009 · 2026-11-23 ·** Phase 0 initializes SQLite schema version zero atomically. Domain tables and migrations belong to Phase 1, demo fixtures to Phase 2 (PHASES.md).
 - **D-010 · 2026-11-23 ·** Pin Next’s transitive PostCSS to the patched approved PostCSS range. The generated npm lockfile exceeds the general 100 KB file cap and is retained for reproducible installs as required.
+- **D-011 · 2026-11-23 ·** Use dynamic HTML rendering so Next embeds the middleware nonce in each response. Resolve production configuration at request time so image builds do not need deployment secrets.
+- **D-012 · 2026-11-23 ·** Rate limiting uses named process-local sliding windows. Local requests share one client bucket. On Cloud Run the limiter uses the forwarded chain suffix; verify ingress behavior during deployment.
 
 ---
 
@@ -84,9 +87,10 @@
 
 ---
 
-## 7. Known Issues / Tech Debt  _(none yet)_
+## 7. Known Issues / Tech Debt
 | ID | Description | Severity | Phase to fix |
 |---|---|---|---|
+| I-001 | Verify forwarded client address at the deployed Cloud Run ingress for per-client rate limiting. | Deployment check | 14 |
 
 ## 8. Blockers & Open Questions
 - Need from user at deploy time: Google Cloud project, Cloud Run region (suggested `asia-south1`), `GEMINI_API_KEY` (optional — app works without it), GitHub repo URL.

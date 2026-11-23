@@ -1,4 +1,4 @@
-import { config } from "@/lib/config";
+import { getConfig } from "@/lib/config";
 
 const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 } as const;
 type Level = keyof typeof LEVELS;
@@ -7,15 +7,17 @@ type Level = keyof typeof LEVELS;
 export function log(
   level: Level,
   event: "startup" | "request" | "error",
-  context: { status?: number; durationMs?: number } = {},
+  context: { requestId?: string; status?: number; durationMs?: number } = {},
 ): void {
-  if (LEVELS[level] < LEVELS[config.LOG_LEVEL]) return;
-  const { status, durationMs } = context;
+  if (level !== "error" && LEVELS[level] < LEVELS[getConfig().LOG_LEVEL])
+    return;
+  const { requestId, status, durationMs } = context;
   process.stdout.write(
     JSON.stringify({
       time: new Date().toISOString(),
       level,
       event,
+      requestId,
       status,
       durationMs,
     }) + "\n",

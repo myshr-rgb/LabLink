@@ -38,4 +38,8 @@ export function readConfig(
   };
 }
 
-export const config = readConfig(process.env);
+let settings: ReturnType<typeof readConfig> | undefined;
+/** Validate at runtime, when deployment secrets are available. */
+export function getConfig(): ReturnType<typeof readConfig> {
+  return (settings ??= readConfig(process.env));
+}
