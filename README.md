@@ -30,30 +30,3 @@ Set `DEMO_MODE=true` in `.env.local`, restart the dev server, then choose a role
 | In-charge | `demo-incharge@example.edu` |
 | Admin | `demo-admin@example.edu` |
 
-## Environment variables
-
-| Variable | Purpose |
-|---|---|
-| `DEMO_MODE` | Enables seeded role sign-ins when set to `true`. Defaults to `false`. |
-| `GEMINI_API_KEY` | Optional server-side Gemini key. An empty value enables rule-based suggestions. |
-| `APP_URL` | Canonical origin used for write requests. Defaults to `http://localhost:3000`. Set it to the HTTPS service URL on Cloud Run. |
-| `SESSION_SECRET` | Required in production. Use a random value of at least 32 characters. |
-
-See [`.env.example`](.env.example) for the full configuration.
-
-## Deploy to Cloud Run
-
-Use an authenticated Google Cloud CLI with an active project. Create a Secret Manager secret named `lablink-session-secret` and grant the Cloud Run service identity access to it.
-
-```sh
-REGION=asia-south1
-gcloud run deploy lablink --source . --region "$REGION" --allow-unauthenticated \
-  --min-instances=1 --max-instances=1 \
-  --set-env-vars=DEMO_MODE=true \
-  --set-secrets=SESSION_SECRET=lablink-session-secret:latest
-
-APP_URL="$(gcloud run services describe lablink --region "$REGION" --format='value(status.url)')"
-gcloud run services update lablink --region "$REGION" --update-env-vars="APP_URL=$APP_URL"
-```
-
-Check `$APP_URL/api/health`. The container uses instance-local SQLite storage, so replacing the instance can reset demo data. [Cloud Run deploy reference](https://docs.cloud.google.com/sdk/gcloud/reference/run/deploy).
